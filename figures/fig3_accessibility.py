@@ -70,7 +70,35 @@ def main():
         },
     ]
 
+    # Energy spread values (fractional) and their fill opacities
+    deltas = [
+        (0.05, 0.15),  # 5% spread, lighter band
+        (0.01, 0.30),  # 1% spread, darker band
+    ]
+
     for case in cases:
+        # Shaded uncertainty bands (plotted first so the line sits on top)
+        for delta, alpha in deltas:
+            gamma_lo = case["gamma"] * (1 - delta)
+            gamma_hi = case["gamma"] * (1 + delta)
+            exch_lo = 1 - phop_of_length(
+                ell_m, case["n_p"], gamma_hi, case["B0"]
+            )
+            exch_hi = 1 - phop_of_length(
+                ell_m, case["n_p"], gamma_lo, case["B0"]
+            )
+            ax.fill_between(
+                ell_cm, exch_lo * 100, exch_hi * 100,
+                color=case["color"], alpha=alpha, lw=0,
+                label=(
+                    rf"$\delta\gamma/\gamma = {delta:.0%}$".replace(
+                        "%", r"\%"
+                    )
+                    if case is cases[0] else None
+                ),
+            )
+
+        # Nominal curve
         phop = phop_of_length(ell_m, case["n_p"], case["gamma"], case["B0"])
         exch = 1 - phop
         ax.plot(

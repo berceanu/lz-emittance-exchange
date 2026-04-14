@@ -4,9 +4,9 @@
 # ///
 """Numerical verification of the Landau-Zener formula.
 
-Log-log scatter of P_hop(numerical) vs P_hop(LZ prediction), showing
-agreement across three orders of magnitude for single-trajectory and
-dressed-ensemble (N=50) datasets.
+Plot of the ratio P_hop(numerical) / P_hop(LZ prediction) vs the
+adiabaticity parameter pi*w^2*T/eta, showing where the LZ formula is
+accurate and where it starts to deviate.
 """
 
 import sys
@@ -135,66 +135,81 @@ def run_ensemble(w, eta, T, N=50, seed=17):
 def main():
     fig, ax = plt.subplots(figsize=(COL_SINGLE, COL_SINGLE / GOLDEN))
 
+    # (w, eta, T) -- chosen to span ~2 decades in adiabaticity pi*w^2*T/eta
     cases = [
-        (0.02, 0.5, 200.0),
-        (0.02, 0.5, 500.0),
-        (0.02, 0.5, 1000.0),
-        (0.02, 0.5, 2000.0),
-        (0.005, 0.5, 1000.0),
-        (0.01, 0.5, 1000.0),
-        (0.015, 0.5, 1000.0),
-        (0.03, 0.5, 1000.0),
-        (0.02, 0.3, 1000.0),
-        (0.02, 0.4, 1000.0),
-        (0.02, 0.7, 1000.0),
+        # --- non-adiabatic (fast) regime: small adiabaticity parameter ---
+        (0.005, 0.5, 200.0),     # adiab ~ 0.03
+        (0.02, 0.5, 20.0),       # adiab ~ 0.05
+        (0.02, 0.5, 50.0),       # adiab ~ 0.13
+        (0.02, 0.5, 100.0),      # adiab ~ 0.25
+        # --- intermediate regime ---
+        (0.02, 0.5, 200.0),      # adiab ~ 0.50
+        (0.01, 0.5, 1000.0),     # adiab ~ 0.63
+        (0.02, 0.5, 500.0),      # adiab ~ 1.26
+        (0.015, 0.5, 1000.0),    # adiab ~ 1.41
+        (0.02, 0.7, 1000.0),     # adiab ~ 1.80
+        (0.02, 0.5, 1000.0),     # adiab ~ 2.51
+        (0.02, 0.4, 1000.0),     # adiab ~ 3.14
+        (0.02, 0.3, 1000.0),     # adiab ~ 4.19
+        # --- adiabatic (slow) regime: large adiabaticity parameter ---
+        (0.02, 0.5, 2000.0),     # adiab ~ 5.03
+        (0.03, 0.5, 1000.0),     # adiab ~ 5.65
+        (0.025, 0.5, 2000.0),    # adiab ~ 7.85
+        (0.03, 0.5, 2000.0),     # adiab ~ 11.3
+        (0.02, 0.5, 5000.0),     # adiab ~ 12.6
     ]
 
-    pred_single = []
-    num_single = []
-    pred_ens = []
-    num_ens_mean = []
-    num_ens_std = []
+    adiab_single = []
+    ratio_single = []
+    adiab_ens = []
+    ratio_ens_mean = []
+    ratio_ens_err = []
 
     print("Running LZ verification data...")
     for w, eta, T in cases:
-        pred = np.exp(-np.pi * w**2 * T / eta)
+        adiab = np.pi * w**2 * T / eta
+        pred = np.exp(-adiab)
         phop_s = run_single(w, eta, T)
         phop_m, phop_sig = run_ensemble(w, eta, T, N=50)
-        pred_single.append(pred)
-        num_single.append(phop_s)
-        pred_ens.append(pred)
-        num_ens_mean.append(phop_m)
-        num_ens_std.append(phop_sig)
+
+        adiab_single.append(adiab)
+        ratio_single.append(phop_s / pred)
+        adiab_ens.append(adiab)
+        ratio_ens_mean.append(phop_m / pred)
+        # Propagate ensemble std to ratio: sigma_ratio = sigma_phop / pred
+        ratio_ens_err.append(phop_sig / pred)
+
         print(
-            f"  w={w} eta={eta} T={T}: pred={pred:.3e}  "
-            f"single={phop_s:.3e}  ens={phop_m:.3e} +/- {phop_sig:.1e}"
+            f"  w={w} eta={eta} T={T}: adiab={adiab:.2f}  pred={pred:.3e}  "
+            f"single={phop_s:.3e} (ratio={phop_s / pred:.4f})  "
+            f"ens={phop_m:.3e} +/- {phop_sig:.1e} (ratio={phop_m / pred:.4f})"
         )
 
-    pred_single = np.array(pred_single)
-    num_single = np.array(num_single)
-    pred_ens = np.array(pred_ens)
-    num_ens_mean = np.array(num_ens_mean)
-    num_ens_std = np.array(num_ens_std)
+    adiab_single = np.array(adiab_single)
+    ratio_single = np.array(ratio_single)
+    adiab_ens = np.array(adiab_ens)
+    ratio_ens_mean = np.array(ratio_ens_mean)
+    ratio_ens_err = np.array(ratio_ens_err)
 
-    # Reference diagonal
-    ref = np.geomspace(1e-4, 1.2, 100)
-    ax.plot(ref, ref, color="0.5", lw=0.7, ls="--", zorder=1)
+    # Perfect agreement line + +/-2% shaded band
+    ax.axhline(1.0, color="0.5", lw=0.7, ls="--", zorder=1)
+    ax.axhspan(0.98, 1.02, color="0.90", alpha=0.4, zorder=0, label=r"$\pm 2\%$")
 
     ax.scatter(
-        pred_single,
-        num_single,
+        adiab_single,
+        ratio_single,
         s=20,
         marker="o",
         facecolor="white",
         edgecolor=OKABE_ITO["blue"],
         lw=0.9,
         zorder=3,
-        label="single",
+        label="single trajectory",
     )
     ax.errorbar(
-        pred_ens,
-        num_ens_mean,
-        yerr=num_ens_std,
+        adiab_ens,
+        ratio_ens_mean,
+        yerr=ratio_ens_err,
         fmt="^",
         color=OKABE_ITO["vermillion"],
         ms=3.5,
@@ -206,13 +221,9 @@ def main():
     )
 
     ax.set_xscale("log")
-    ax.set_yscale("log")
-    ax.set_xlim(1e-3, 1.0)
-    ax.set_ylim(1e-3, 1.0)
-    ax.set_aspect("equal")
-    ax.set_xlabel(r"$P_{\rm hop}^{\rm (LZ)}$")
-    ax.set_ylabel(r"$P_{\rm hop}^{\rm (num)}$")
-    ax.legend(loc="upper left", handlelength=1.0)
+    ax.set_xlabel(r"$\pi \omega^2 T / \eta$")
+    ax.set_ylabel(r"$P_{\rm hop}^{\rm (num)} \;/\; P_{\rm hop}^{\rm (LZ)}$")
+    ax.legend(loc="center left", handlelength=1.0)
 
     out = Path(__file__).parent / "fig2_lz_verification.pdf"
     fig.savefig(out)
