@@ -21,6 +21,7 @@ OKABE_ITO = {
 # Single- and double-column widths (inches)
 COL_SINGLE = 3.4
 COL_DOUBLE = 7.0
+GOLDEN = 1.618
 
 
 def set_style():

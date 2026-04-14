@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).parent))
-from _style import COL_SINGLE, OKABE_ITO, set_style  # noqa: E402
+from _style import COL_SINGLE, GOLDEN, OKABE_ITO, set_style  # noqa: E402
 
 set_style()
 
@@ -52,7 +52,7 @@ def phop_of_length(ell_m, n_p_cgs, gamma, B0):
 
 
 def main():
-    fig, ax = plt.subplots(figsize=(COL_SINGLE, COL_SINGLE * 0.80))
+    fig, ax = plt.subplots(figsize=(COL_SINGLE, COL_SINGLE / GOLDEN))
 
     ell_cm = np.linspace(0.1, 40.0, 800)
     ell_m = ell_cm * 1e-2

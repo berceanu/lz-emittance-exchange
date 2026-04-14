@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).parent))
-from _style import COL_SINGLE, OKABE_ITO, set_style  # noqa: E402
+from _style import COL_SINGLE, GOLDEN, OKABE_ITO, set_style  # noqa: E402
 
 set_style()
 
@@ -38,7 +38,7 @@ def normal_modes(delta, w):
 
 
 def main():
-    fig, ax = plt.subplots(figsize=(COL_SINGLE, COL_SINGLE * 0.78))
+    fig, ax = plt.subplots(figsize=(COL_SINGLE, COL_SINGLE / GOLDEN))
 
     delta = np.linspace(-1.0, 1.0, 401)
 

@@ -17,7 +17,7 @@ import numpy as np
 from scipy.integrate import solve_ivp
 
 sys.path.insert(0, str(Path(__file__).parent))
-from _style import COL_SINGLE, OKABE_ITO, set_style  # noqa: E402
+from _style import COL_SINGLE, GOLDEN, OKABE_ITO, set_style  # noqa: E402
 
 set_style()
 
@@ -133,7 +133,7 @@ def run_ensemble(w, eta, T, N=50, seed=17):
 
 
 def main():
-    fig, ax = plt.subplots(figsize=(COL_SINGLE, COL_SINGLE * 0.95))
+    fig, ax = plt.subplots(figsize=(COL_SINGLE, COL_SINGLE / GOLDEN))
 
     cases = [
         (0.02, 0.5, 200.0),
