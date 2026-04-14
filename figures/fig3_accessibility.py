@@ -5,8 +5,8 @@
 """Emittance exchange fraction vs crossing length for LWFA parameters.
 
 Plot 1 - P_hop as a function of the anisotropy crossing length (cm)
-for two parameter sets. Secondary y-axis shows Stokes shift Delta Q.
-Shaded band marks typical single-stage LWFA length (1--10 cm).
+for two parameter sets. Shaded band marks typical single-stage LWFA
+length (1--10 cm).
 """
 
 import sys
@@ -90,13 +90,6 @@ def main():
     ax.set_xticks([0, 10, 20, 30, 40])
     ax.set_yticks([0, 25, 50, 75, 100])
     ax.legend(loc="upper left", handlelength=1.2)
-
-    # Right axis: Stokes shift Delta Q = 2(1 - P_hop)
-    ax2 = ax.twinx()
-    ax2.set_ylim(0, 2.0)
-    ax2.set_yticks([0, 0.5, 1.0, 1.5, 2.0])
-    ax2.set_ylabel(r"$\Delta Q$")
-    ax2.tick_params(direction="in")
 
     out = Path(__file__).parent / "fig3_accessibility.pdf"
     fig.savefig(out)
