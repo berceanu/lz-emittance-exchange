@@ -223,7 +223,8 @@ def main():
     ax.set_xscale("log")
     ax.set_xlabel(r"$\pi \omega^2 T / \eta$")
     ax.set_ylabel(r"$P_{\rm hop}^{\rm (num)} \;/\; P_{\rm hop}^{\rm (LZ)}$")
-    ax.legend(loc="center left", handlelength=1.0)
+    ax.legend(loc="upper left", fontsize=6.5, handlelength=1.0,
+              columnspacing=0.8, ncol=1)
 
     out = Path(__file__).parent / "fig2_lz_verification.pdf"
     fig.savefig(out)

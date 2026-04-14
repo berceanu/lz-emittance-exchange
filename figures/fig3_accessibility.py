@@ -76,8 +76,8 @@ def main():
         (0.01, 0.30),  # 1% spread, darker band
     ]
 
+    # Draw bands first (no labels), then curves (with labels)
     for case in cases:
-        # Shaded uncertainty bands (plotted first so the line sits on top)
         for delta, alpha in deltas:
             gamma_lo = case["gamma"] * (1 - delta)
             gamma_hi = case["gamma"] * (1 + delta)
@@ -90,21 +90,23 @@ def main():
             ax.fill_between(
                 ell_cm, exch_lo * 100, exch_hi * 100,
                 color=case["color"], alpha=alpha, lw=0,
-                label=(
-                    rf"$\delta\gamma/\gamma = {delta:.0%}$".replace(
-                        "%", r"\%"
-                    )
-                    if case is cases[0] else None
-                ),
             )
 
-        # Nominal curve
+    for case in cases:
         phop = phop_of_length(ell_m, case["n_p"], case["gamma"], case["B0"])
         exch = 1 - phop
         ax.plot(
             ell_cm, exch * 100,
             color=case["color"], lw=1.3, label=case["label"],
         )
+
+    # Manual legend entries for the energy spread bands
+    from matplotlib.patches import Patch
+    handles, labels = ax.get_legend_handles_labels()
+    for delta, alpha in deltas:
+        lbl = rf"$\delta\gamma/\gamma = {delta:.0%}$".replace("%", r"\%")
+        handles.append(Patch(facecolor="0.5", alpha=alpha))
+        labels.append(lbl)
 
     ax.axvspan(1.0, 10.0, color="0.90", alpha=0.7, zorder=0)
 
@@ -117,7 +119,8 @@ def main():
     ax.set_ylim(0, 100)
     ax.set_xticks([0, 10, 20, 30, 40])
     ax.set_yticks([0, 25, 50, 75, 100])
-    ax.legend(loc="upper left", handlelength=1.2)
+    ax.legend(handles, labels, loc="upper left", handlelength=1.2,
+              fontsize=6.5)
 
     out = Path(__file__).parent / "fig3_accessibility.pdf"
     fig.savefig(out)

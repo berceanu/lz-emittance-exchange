@@ -141,11 +141,7 @@ def main():
 
     # Numerical eigenfrequencies via ODE integration + FFT
     # Concentrate sample points near delta=0 where the gap is
-    delta_num = np.concatenate([
-        np.linspace(-1.0, -0.3, 4),
-        np.linspace(-0.25, 0.25, 10),
-        np.linspace(0.3, 1.0, 4),
-    ])
+    delta_num = np.linspace(-0.9, 0.9, 10)
     for w, c in zip(w_values, colors):
         Om_p_num = np.empty_like(delta_num)
         Om_m_num = np.empty_like(delta_num)
